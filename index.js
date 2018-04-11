@@ -18,7 +18,7 @@ eventBus.on("text", async (person, text) => {
 	const owner = await usernames.findUsernameOwner(username);
 
 	if(typeof owner === "undefined") {
-		await usernames.buyUsername(username, person);
+		usernames.setUsernameOwner(username, person);
 		await reply(person, `${username} bought successfully`);
 	} else {
 		await reply(person, `${username} is taken by ${owner}`);
