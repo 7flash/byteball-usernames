@@ -1,7 +1,9 @@
 let usernameOwnership = {};
 
-const highPrice = 2000;
-const lowPrice = 1000;
+let pendingPayments = {};
+
+const highPrice = 200;
+const lowPrice = 100;
 
 module.exports = {
 	setUsernameOwner(username, person) {
@@ -25,6 +27,20 @@ module.exports = {
 		} else {
 			return lowPrice;
 		}
+	},
+
+	findPendingPayment(username) {
+		return pendingPayments[username];
+	},
+
+	savePendingPayment(payment) {
+		if(!this.validateUsername(payment.username))
+			throw new Error(`${payment.username} is not valid`);
+
+		if(this.findUsernameOwner(payment.username))
+			throw new Error(`${payment.username} is already taken`);
+
+		pendingPayments[payment.username] = payment;
 	},
 
 	highPrice: highPrice,
