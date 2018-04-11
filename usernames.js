@@ -21,9 +21,9 @@ module.exports = {
 
 	getPrice(username) {
 		if(username.length < 7) {
-			return module.exports.highPrice;
+			return highPrice;
 		} else {
-			return module.exports.lowPrice;
+			return lowPrice;
 		}
 	},
 
