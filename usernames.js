@@ -1,6 +1,6 @@
 let usernameOwnership = {};
 
-let pendingPayments = {};
+let pendingPayments = [];
 
 const highPrice = 200;
 const lowPrice = 100;
@@ -29,8 +29,12 @@ module.exports = {
 		}
 	},
 
-	findPendingPayment(username) {
-		return pendingPayments[username];
+	findPendingPaymentByUsername(username) {
+		return pendingPayments.find((item) => item.username === username);
+	},
+
+	findPendingPaymentByAddress(address) {
+		return pendingPayments.find((item) => item.address === address);
 	},
 
 	savePendingPayment(payment) {
@@ -40,7 +44,7 @@ module.exports = {
 		if(this.findUsernameOwner(payment.username))
 			throw new Error(`${payment.username} is already taken`);
 
-		pendingPayments[payment.username] = payment;
+		pendingPayments.push(payment);
 	},
 
 	highPrice: highPrice,
