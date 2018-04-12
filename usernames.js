@@ -47,6 +47,13 @@ module.exports = {
 		pendingPayments.push(payment);
 	},
 
-	highPrice: highPrice,
-	lowPrice: lowPrice
+	removePendingPaymentByUsername(username) {
+		const index = pendingPayments.findIndex((item) => item.username === username);
+
+		if(index > -1)
+			pendingPayments.splice(index, 1);
+	}
 }
+
+module.exports.highPrice = highPrice;
+module.exports.lowPrice = lowPrice;

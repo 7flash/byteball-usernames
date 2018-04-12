@@ -65,7 +65,7 @@ describe("Usernames", () => {
 
 	describe("record pending payments", () => {
 		it("should return undefined for username that is not pending for payment", () => {
-			expect(usernames.findPendingPaymentByUsername(anotherUsername)).to.be.equal(undefined);
+			expect(usernames.findPendingPaymentByUsername(examplePendingPayment.username)).to.be.equal(undefined);
 		});
 
 		it("should fail to create pending payment for taken username", () => {
@@ -86,6 +86,11 @@ describe("Usernames", () => {
 
 		it("should return info about pending payment by address", () => {
 			expect(usernames.findPendingPaymentByAddress(examplePendingPayment.address)).to.be.equal(examplePendingPayment);
+		});
+
+		it("should allow to remove pending paymnet by username", () => {
+			usernames.removePendingPaymentByUsername(examplePendingPayment.username);
+			expect(usernames.findPendingPaymentByUsername(examplePendingPayment.username)).to.be.equal(undefined);
 		});
 	});
 });
