@@ -7,6 +7,8 @@ const reply = helpers.reply;
 
 const welcomeMessage = "Here you can buy usernames";
 
+let attestor = null;
+
 const handleTransaction = async (units) => {
 	const query = `SELECT * FROM outputs WHERE outputs.unit IN(?)`;
 
@@ -24,13 +26,22 @@ const handleTransaction = async (units) => {
 
 				await usernames.removePendingPaymentByAddress(address);
 
-				await reply(pendingPayment.person, `${pendingPayment.username} bought successfully`);
+				const unit = await helpers.postAttestation(attestor, {
+					username: pendingPayment.username,
+					person: pendingPayment.person
+				});
+
+				await reply(pendingPayment.person, `${pendingPayment.username} => https://explorer.byteball.org/#${unit}`);
 			} else {
 				await reply(pendingPayment.person, `Your payment has been lost, sorry`);
 			}
 		}
 	}
 }
+
+eventBus.once('headless_wallet_ready', async () => {
+	attestor = await helpers.createPaymentAddress();
+});
 
 eventBus.on("paired", (from) => {
 	reply(from, welcomeMessage);
