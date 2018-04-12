@@ -1,28 +1,28 @@
-let pendingPayments = [];
+const executeQuery = require("./helpers.js").executeQuery;
+
+const table = "pending_payments";
 
 module.exports = {
-	findPayment({ username, address }) {
+	async findPayment({ username, address }) {
+		let result;
+
 		if(username) {
-			return pendingPayments.find((item) => item.username === username);
+			result = await executeQuery(`SELECT * FROM ${table} WHERE username = ?`, [username]);
 		} else {
-			return pendingPayments.find((item) => item.address === address);
+			result = await executeQuery(`SELECT * FROM ${table} WHERE address = ?`, [address]);
 		}
 	},
 
-	removePayment({ username, address }) {
-		let index = -1;
-
+	async removePayment({ username, address }) {
 		if(username) {
-			index = pendingPayments.findIndex((item) => item.username === username);
+			await executeQuery(`DELETE FROM ${table} WHERE username = ?`, [username]);
 		} else {
-			index = pendingPayments.findIndex((item) => item.address === address);
+			await executeQuery(`DELETE FROM ${table} WHERE address = ?`, [address]);
 		}
-
-		if(index > -1)
-			pendingPayments.splice(index, 1);
 	},
 
-	savePayment(payment) {
-		pendingPayments.push(payment);
+	async savePayment(payment) {
+		await executeQuery(`INSERT INTO ${table} (username, address, person, amount) VALUES(?)`,
+			[payment.username, payment.address, payment.person, payment.amount]);
 	}
 }

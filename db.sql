@@ -1,0 +1,13 @@
+CREATE TABLE usernames (
+    username VARCHAR(320) NOT NULL PRIMARY KEY,
+    person CHAR(33) NOT NULL,
+    creation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE pending_payments (
+    username VARCHAR(320) NOT NULL PRIMARY KEY,
+    address CHAR(32) NOT NULL,
+    person CHAR(33) NOT NULL,
+    amount INTEGER NOT NULL,
+    creation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

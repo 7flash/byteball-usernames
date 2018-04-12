@@ -1,11 +1,17 @@
-let usernameOwnership = {};
+const executeQuery = require("./helpers.js").executeQuery;
+
+const table = "usernames";
 
 module.exports = {
-	setOwner(username, person) {
-		usernameOwnership[username] = person;
+	async setOwner(username, person) {
+		await executeQuery(`INSERT INTO ${table} (username, person) VALUES(?)`,
+			[username, person]);
 	},
 
-	findOwner(username) {
-		return usernameOwnership[username];
+	async findOwner(username) {
+		const result = await executeQuery(`SELECT person FROM ${table} WHERE username = ?`,
+			[username]);
+
+		return result[0];
 	}
 }
