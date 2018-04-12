@@ -52,6 +52,13 @@ module.exports = {
 
 		if(index > -1)
 			pendingPayments.splice(index, 1);
+	},
+
+	removePendingPaymentByAddress(address) {
+		const index = pendingPayments.findIndex((item) => item.address === address);
+
+		if(index > -1)
+			pendingPayments.splice(index, 1);
 	}
 }
 

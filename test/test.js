@@ -88,9 +88,16 @@ describe("Usernames", () => {
 			expect(usernames.findPendingPaymentByAddress(examplePendingPayment.address)).to.be.equal(examplePendingPayment);
 		});
 
-		it("should allow to remove pending paymnet by username", () => {
+		it("should allow to remove pending payment by username", () => {
 			usernames.removePendingPaymentByUsername(examplePendingPayment.username);
 			expect(usernames.findPendingPaymentByUsername(examplePendingPayment.username)).to.be.equal(undefined);
+		});
+
+		it("should allow to remove pending payment by address", () => {
+			usernames.savePendingPayment(examplePendingPayment);
+
+			usernames.removePendingPaymentByAddress(examplePendingPayment.address);
+			expect(usernames.findPendingPaymentByAddress(examplePendingPayment.address)).to.be.equal(undefined);
 		});
 	});
 });
