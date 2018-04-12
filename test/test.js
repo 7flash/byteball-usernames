@@ -25,16 +25,16 @@ const examplePendingPayment = {
 
 describe("Usernames", () => {
 	describe("record ownership of usernames", () => {
-		it("should return undefined for available username", () => {
-			expect(usernames.findUsernameOwner(exampleUsername)).to.be.equal(undefined);
+		it("should return undefined for available username", async () => {
+			expect(await usernames.findUsernameOwner(exampleUsername)).to.be.equal(undefined);
 		});
 
-		it("should allow to set username ownership", () => {
-			usernames.setUsernameOwner(exampleUsername, examplePerson);
+		it("should allow to set username ownership", async () => {
+			await usernames.setUsernameOwner(exampleUsername, examplePerson);
 		});
 
-		it("should return owner of taken username", () => {
-			expect(usernames.findUsernameOwner(exampleUsername)).to.be.equal(examplePerson);
+		it("should return owner of taken username", async () => {
+			expect(await usernames.findUsernameOwner(exampleUsername)).to.be.equal(examplePerson);
 		});
 	});
 
@@ -71,40 +71,48 @@ describe("Usernames", () => {
 	});
 
 	describe("record pending payments", () => {
-		it("should return undefined for username that is not pending for payment", () => {
-			expect(usernames.findPendingPaymentByUsername(examplePendingPayment.username)).to.be.equal(undefined);
+		it("should return undefined for username that is not pending for payment", async () => {
+			expect(await usernames.findPendingPaymentByUsername(examplePendingPayment.username)).to.be.equal(undefined);
 		});
 
-		it("should fail to create pending payment for taken username", () => {
-			expect(() => usernames.savePendingPayment({ username: exampleUsername })).to.throw();
+		it("should fail to create pending payment for taken username", async () => {
+			try {
+				await usernames.savePendingPayment({ username: exampleUsername });
+			} catch(e) {
+				expect(e).to.be.an('error');
+			}
 		});
 
-		it("should fail to create pending payment for invalid username", () => {
-			expect(() => usernames.savePendingPayment({ username: "four" })).to.throw();
+		it("should fail to create pending payment for invalid username", async () => {
+			try {
+				await usernames.savePendingPayment({ username: "four" })
+			} catch(e) {
+				expect(e).to.be.an('error');
+			}
 		});
 
-		it("should allow to create pending payment for available username", () => {
-			usernames.savePendingPayment(examplePendingPayment);
+		it("should allow to create pending payment for available username", async () => {
+			await usernames.savePendingPayment(examplePendingPayment);
 		});
 
-		it("should return info about pending payment by username", () => {
-			expect(usernames.findPendingPaymentByUsername(examplePendingPayment.username)).to.be.equal(examplePendingPayment);
+		it("should return info about pending payment by username", async () => {
+			expect(await usernames.findPendingPaymentByUsername(examplePendingPayment.username)).to.be.equal(examplePendingPayment);
 		});
 
-		it("should return info about pending payment by address", () => {
-			expect(usernames.findPendingPaymentByAddress(examplePendingPayment.address)).to.be.equal(examplePendingPayment);
+		it("should return info about pending payment by address", async () => {
+			expect(await usernames.findPendingPaymentByAddress(examplePendingPayment.address)).to.be.equal(examplePendingPayment);
 		});
 
-		it("should allow to remove pending payment by username", () => {
-			usernames.removePendingPaymentByUsername(examplePendingPayment.username);
-			expect(usernames.findPendingPaymentByUsername(examplePendingPayment.username)).to.be.equal(undefined);
+		it("should allow to remove pending payment by username", async () => {
+			await usernames.removePendingPaymentByUsername(examplePendingPayment.username);
+			expect(await usernames.findPendingPaymentByUsername(examplePendingPayment.username)).to.be.equal(undefined);
 		});
 
-		it("should allow to remove pending payment by address", () => {
-			usernames.savePendingPayment(examplePendingPayment);
+		it("should allow to remove pending payment by address", async () => {
+			await usernames.savePendingPayment(examplePendingPayment);
 
-			usernames.removePendingPaymentByAddress(examplePendingPayment.address);
-			expect(usernames.findPendingPaymentByAddress(examplePendingPayment.address)).to.be.equal(undefined);
+			await usernames.removePendingPaymentByAddress(examplePendingPayment.address);
+			expect(await usernames.findPendingPaymentByAddress(examplePendingPayment.address)).to.be.equal(undefined);
 		});
 	});
 });

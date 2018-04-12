@@ -2,12 +2,12 @@ const usernamesModel = require("./usernamesModel.js");
 const pendingPaymentsModel = require("./pendingPaymentsModel.js");
 
 module.exports = {
-	setUsernameOwner(username, person) {
-		usernamesModel.setOwner(username, person);
+	async setUsernameOwner(username, person) {
+		await usernamesModel.setOwner(username, person);
 	},
 
-	findUsernameOwner(username) {
-		return usernamesModel.findOwner(username);
+	async findUsernameOwner(username) {
+		return await usernamesModel.findOwner(username);
 	},
 
 	validateUsername(username) {
@@ -25,30 +25,30 @@ module.exports = {
 		}
 	},
 
-	findPendingPaymentByUsername(username) {
-		return pendingPaymentsModel.findPayment({ username });
+	async findPendingPaymentByUsername(username) {
+		return await pendingPaymentsModel.findPayment({ username });
 	},
 
-	findPendingPaymentByAddress(address) {
-		return pendingPaymentsModel.findPayment({ address });
+	async findPendingPaymentByAddress(address) {
+		return await pendingPaymentsModel.findPayment({ address });
 	},
 
-	savePendingPayment(payment) {
+	async savePendingPayment(payment) {
 		if(!this.validateUsername(payment.username))
 			throw new Error(`${payment.username} is not valid`);
 
-		if(this.findUsernameOwner(payment.username))
+		if(await this.findUsernameOwner(payment.username))
 			throw new Error(`${payment.username} is already taken`);
 
-		pendingPaymentsModel.savePayment(payment);
+		await pendingPaymentsModel.savePayment(payment);
 	},
 
-	removePendingPaymentByUsername(username) {
-		pendingPaymentsModel.removePayment({ username });
+	async removePendingPaymentByUsername(username) {
+		await pendingPaymentsModel.removePayment({ username });
 	},
 
-	removePendingPaymentByAddress(address) {
-		pendingPaymentsModel.removePayment({ address });
+	async removePendingPaymentByAddress(address) {
+		await pendingPaymentsModel.removePayment({ address });
 	}
 }
 
