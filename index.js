@@ -26,12 +26,19 @@ const handleTransaction = async (units) => {
 
 				await usernames.removePendingPaymentByAddress(address);
 
-				const unit = await helpers.postAttestation(attestor, {
-					username: pendingPayment.username,
-					person: pendingPayment.person
-				});
+				let unit;
 
-				await reply(pendingPayment.person, `${pendingPayment.username} => https://explorer.byteball.org/#${unit}`);
+				try {
+					unit = await helpers.postAttestation(attestor, {
+						username: pendingPayment.username,
+						person: pendingPayment.person
+					});
+
+					await reply(pendingPayment.person, `${pendingPayment.username} => https://explorer.byteball.org/#${unit}`);
+				} catch(e) {
+					console.error(e);
+					await reply(pendingPayment.person, `${pendingPayment.username} => without attestation`);
+				}
 			} else {
 				await reply(pendingPayment.person, `Your payment has been lost, sorry`);
 			}
