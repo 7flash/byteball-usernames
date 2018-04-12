@@ -4,7 +4,7 @@ const table = "usernames";
 
 module.exports = {
 	async setOwner(username, person) {
-		await executeQuery(`INSERT INTO ${table} (username, person) VALUES(?)`,
+		await executeQuery(`INSERT INTO ${table} (username, person) VALUES(?, ?)`,
 			[username, person]);
 	},
 

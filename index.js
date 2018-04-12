@@ -1,4 +1,4 @@
-require("enable_webstorm_debugger.js");
+require("./enable_webstorm_debugger.js");
 
 const eventBus = require("byteballcore/event_bus");
 const usernames = require("./usernames");
@@ -10,13 +10,13 @@ const welcomeMessage = "Here you can buy usernames";
 const handleTransaction = async (units) => {
 	const query = `SELECT * FROM outputs WHERE outputs.unit IN(?)`;
 
-	const rows = await executeQuery(query, [units]);
+	const rows = await helpers.executeQuery(query, [units]);
 
 	for(output of rows) {
 		const address = output.address;
 		const amount = output.amount;
 
-		const pendingPayment = usernames.findPendingPaymentByAddress(address);
+		const pendingPayment = await usernames.findPendingPaymentByAddress(address);
 
 		if(pendingPayment) {
 			if(amount === pendingPayment.amount) {

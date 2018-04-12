@@ -11,6 +11,8 @@ module.exports = {
 		} else {
 			result = await executeQuery(`SELECT * FROM ${table} WHERE address = ?`, [address]);
 		}
+
+		return result[0];
 	},
 
 	async removePayment({ username, address }) {
@@ -22,7 +24,7 @@ module.exports = {
 	},
 
 	async savePayment(payment) {
-		await executeQuery(`INSERT INTO ${table} (username, address, person, amount) VALUES(?)`,
+		await executeQuery(`INSERT INTO ${table} (username, address, person, amount) VALUES(?,?,?,?)`,
 			[payment.username, payment.address, payment.person, payment.amount]);
 	}
 }
