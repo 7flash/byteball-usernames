@@ -12,6 +12,12 @@ const createPaymentAddress = () => {
 	});
 }
 
+const createAddress = (index) => {
+	return new Promise((resolve) => {
+		headlessWallet.issueOrSelectAddressByIndex(0, 0, resolve);
+	});
+}
+
 const reply = (recipient, message) => {
 	return new Promise((resolve) => {
 		device.sendMessageToDevice(recipient, "text", message, {
@@ -43,7 +49,7 @@ const postAttestation = async (attestor, payload) => {
 			messages: [message],
 			signer: headlessWallet.signer,
 			callbacks: composer.getSavingCallbacks({
-				isNotEnoughFunds: reject,
+				ifNotEnoughFunds: reject,
 				ifError: reject,
 				ifOk: (joint) => {
 					network.broadcastJoint(joint);
@@ -70,6 +76,7 @@ const postAttestation = async (attestor, payload) => {
 module.exports = {
 	postAttestation,
 	createPaymentAddress,
+	createAddress,
 	executeQuery,
 	reply,
 };

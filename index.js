@@ -47,7 +47,8 @@ const handleTransaction = async (units) => {
 }
 
 eventBus.once('headless_wallet_ready', async () => {
-	attestor = await helpers.createPaymentAddress();
+	attestor = await helpers.createAddress();
+	console.log(`Fill balance of attestor: ${attestor}`);
 });
 
 eventBus.on("paired", (from) => {
