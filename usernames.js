@@ -1,17 +1,16 @@
-let usernameOwnership = {};
-
-let pendingPayments = [];
+const usernamesModel = require("./usernamesModel.js");
+const pendingPaymentsModel = require("./pendingPaymentsModel.js");
 
 const highPrice = 200;
 const lowPrice = 100;
 
 module.exports = {
 	setUsernameOwner(username, person) {
-		usernameOwnership[username] = person;
+		usernamesModel.setOwner(username, person);
 	},
 
 	findUsernameOwner(username) {
-		return usernameOwnership[username];
+		return usernamesModel.findOwner(username);
 	},
 
 	validateUsername(username) {
@@ -30,11 +29,11 @@ module.exports = {
 	},
 
 	findPendingPaymentByUsername(username) {
-		return pendingPayments.find((item) => item.username === username);
+		return pendingPaymentsModel.findPayment({ username });
 	},
 
 	findPendingPaymentByAddress(address) {
-		return pendingPayments.find((item) => item.address === address);
+		return pendingPaymentsModel.findPayment({ address });
 	},
 
 	savePendingPayment(payment) {
@@ -44,21 +43,15 @@ module.exports = {
 		if(this.findUsernameOwner(payment.username))
 			throw new Error(`${payment.username} is already taken`);
 
-		pendingPayments.push(payment);
+		pendingPaymentsModel.savePayment(payment);
 	},
 
 	removePendingPaymentByUsername(username) {
-		const index = pendingPayments.findIndex((item) => item.username === username);
-
-		if(index > -1)
-			pendingPayments.splice(index, 1);
+		pendingPaymentsModel.removePayment({ username });
 	},
 
 	removePendingPaymentByAddress(address) {
-		const index = pendingPayments.findIndex((item) => item.address === address);
-
-		if(index > -1)
-			pendingPayments.splice(index, 1);
+		pendingPaymentsModel.removePayment({ address });
 	}
 }
 
