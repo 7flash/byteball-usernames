@@ -1,7 +1,14 @@
 const assert = require("assert");
 const expect = require("chai").expect;
+const proxyquire = require("proxyquire").noCallThru();
 
-const usernames = require("../usernames.js");
+const usernamesModelMock = require("./usernamesModelMock.js");
+const pendingPaymentsModelMock = require("./pendingPaymentsModelMock.js");
+
+const usernames = proxyquire("../usernames.js", {
+	'./usernamesModel': usernamesModelMock ,
+	'./pendingPaymentsModel': pendingPaymentsModelMock
+});
 
 const exampleUsername = "superuser";
 const examplePerson = "0FNZQSZTPMNZOHYE5R55VIWXF4J63SRG3";

@@ -1,9 +1,6 @@
 const usernamesModel = require("./usernamesModel.js");
 const pendingPaymentsModel = require("./pendingPaymentsModel.js");
 
-const highPrice = 200;
-const lowPrice = 100;
-
 module.exports = {
 	setUsernameOwner(username, person) {
 		usernamesModel.setOwner(username, person);
@@ -22,9 +19,9 @@ module.exports = {
 
 	getPrice(username) {
 		if(username.length < 7) {
-			return highPrice;
+			return module.exports.highPrice;
 		} else {
-			return lowPrice;
+			return module.exports.lowPrice;
 		}
 	},
 
@@ -55,5 +52,5 @@ module.exports = {
 	}
 }
 
-module.exports.highPrice = highPrice;
-module.exports.lowPrice = lowPrice;
+module.exports.highPrice = 200;
+module.exports.lowPrice = 100;

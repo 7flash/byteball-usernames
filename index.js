@@ -1,40 +1,11 @@
-const headlessWallet = require("headless-byteball");
+require("enable_webstorm_debugger.js");
 
-const device = require("byteballcore/device");
 const eventBus = require("byteballcore/event_bus");
-const db = require("byteballcore/db");
-
 const usernames = require("./usernames");
+const helpers = require("./helpers");
+const reply = helpers.reply;
 
 const welcomeMessage = "Here you can buy usernames";
-
-if (process.env.debug != null) {
-	require("readline").Interface.prototype.question = function(query, cb) {
-		cb("");
-	}
-}
-
-const createPaymentAddress = () => {
-	return new Promise((resolve) => {
-		headlessWallet.issueNextMainAddress(resolve);
-	});
-}
-
-const reply = (recipient, message) => {
-	return new Promise((resolve) => {
-		device.sendMessageToDevice(recipient, "text", message, {
-			ifOk: () => {
-				resolve();
-			}
-		});
-	});
-}
-
-const executeQuery = async (query, params) => {
-	return new Promise((resolve) => {
-		db.query(query, params, resolve);
-	});
-}
 
 const handleTransaction = async (units) => {
 	const query = `SELECT * FROM outputs WHERE outputs.unit IN(?)`;
@@ -83,7 +54,7 @@ eventBus.on("text", async (person, text) => {
 		return reply(person, `${username} is already pending for payment`);
 	}
 
-	const address = await createPaymentAddress();
+	const address = await helpers.createPaymentAddress();
 	const amount = usernames.getPrice(username);
 
 	await usernames.savePendingPayment({ address, amount, person, username });
