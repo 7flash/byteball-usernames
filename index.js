@@ -1,11 +1,12 @@
 require("./enable_webstorm_debugger.js");
 
+const conf = require("byteballcore/conf");
 const eventBus = require("byteballcore/event_bus");
 const usernames = require("./usernames");
 const helpers = require("./helpers");
 const reply = helpers.reply;
 
-const welcomeMessage = "Here you can buy usernames";
+const welcomeMessage = conf.welcomeMessage;
 
 let attestor = null;
 
@@ -30,8 +31,8 @@ const handleTransaction = async (units) => {
 
 				try {
 					unit = await helpers.postAttestation(attestor, {
-						username: pendingPayment.username,
-						person: pendingPayment.person
+						profile: pendingPayment.username,
+						address: pendingPayment.person
 					});
 
 					await reply(pendingPayment.person, `${pendingPayment.username} => https://explorer.byteball.org/#${unit}`);

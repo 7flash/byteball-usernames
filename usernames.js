@@ -1,6 +1,8 @@
 const usernamesModel = require("./usernamesModel.js");
 const pendingPaymentsModel = require("./pendingPaymentsModel.js");
 
+const conf = require("byteballcore/conf");
+
 module.exports = {
 	async setUsernameOwner(username, person) {
 		await usernamesModel.setOwner(username, person);
@@ -52,5 +54,5 @@ module.exports = {
 	}
 }
 
-module.exports.highPrice = 200;
-module.exports.lowPrice = 100;
+module.exports.highPrice = conf.highPrice;
+module.exports.lowPrice = conf.lowPrice;

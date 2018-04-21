@@ -1,6 +1,6 @@
 const executeQuery = require("./helpers.js").executeQuery;
 
-const table = "usernames";
+const table = require("byteballcore/conf").usernamesTable;
 
 module.exports = {
 	async setOwner(username, person) {

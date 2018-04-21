@@ -1,6 +1,6 @@
 const executeQuery = require("./helpers.js").executeQuery;
 
-const table = "pending_payments";
+const table = require("byteballcore/conf").pendingPaymentsTable;
 
 module.exports = {
 	async findPayment({ username, address }) {
