@@ -26,36 +26,42 @@ const onPaired = async (from) => {
 const handleNewTransactions = async (units) => {
 	const reservations = await usernames.findReservationsByUnits(units);
 
-	reservations.map(async ({ wallet }) => {
-		await reservation.confirmReservationByWallet(wallet);
-	});
+	if(reservations) {
+		reservations.map(async ({wallet}) => {
+			await reservation.confirmReservationByWallet(wallet);
+		});
+	}
 };
 
 const handleStableTransactions = async (units) => {
 	const reservations = await usernames.findReservationsByUnits(units);
 
-	reservations.map(async ({ username, wallet }) => {
-		await usernames.createUsername({ username, wallet });
+	if(reservations) {
+		reservations.map(async ({username, wallet}) => {
+			await usernames.createUsername({username, wallet});
 
-		await usernames.removeReservationByWallet(wallet);
+			await usernames.removeReservationByWallet(wallet);
 
-		await helpers.postAttestation(attestor, {
-			profile: username,
-			address: wallet
+			await helpers.postAttestation(attestor, {
+				profile: username,
+				address: wallet
+			});
 		});
-	});
+	}
 };
 
 const handleQuestion = async (device, text) => {
+	device = device.trim();
+
 	const wallet = await usernames.findWalletByDevice(device);
 
 	if (wallet) {
-		const chosenUsername = text;
+		const chosenUsername = text.trim();
 
 		try {
 			const address = await helpers.createAddress();
 
-			const amount = usernames.getPrice(username);
+			const amount = usernames.getPrice(chosenUsername);
 
 			await usernames.createReservation({
 				wallet: wallet,
@@ -69,7 +75,7 @@ const handleQuestion = async (device, text) => {
 			await reply(device, e.toString());
 		}
 	} else {
-		const chosenWallet = text;
+		const chosenWallet = text.trim();
 
 		try {
 			await usernames.createWallet({

@@ -23,5 +23,5 @@ exports.errors = {
 	USERNAME_RESERVED: `"{username}" is reserved by {wallet}`,
 	INVALID_USERNAME: `"{username}" is not valid username - It should have at least 5 symbols length`,
 	INVALID_WALLET: `"{wallet}" is not valid wallet address - Please choose correct one`,
-	INVALID_DEVICE: `"{device}" is not valid`
+	INVALID_DEVICE: `"{device}" is not valid device address`
 };
