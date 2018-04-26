@@ -1,13 +1,20 @@
-CREATE TABLE usernames (
-    username VARCHAR(320) NOT NULL PRIMARY KEY,
-    person CHAR(33) NOT NULL,
+CREATE TABLE device_to_wallet (
+    device CHAR(33) UNIQUE NOT NULL PRIMARY KEY,
+    wallet CHAR(32) UNIQUE NOT NULL,
     creation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE pending_payments (
-    username VARCHAR(320) NOT NULL PRIMARY KEY,
-    address CHAR(32) NOT NULL,
-    person CHAR(33) NOT NULL,
-    amount INTEGER NOT NULL,
+CREATE TABLE wallet_to_reservation (
+    wallet CHAR(32) UNIQUE NOT NULL PRIMARY KEY,
+    username VARCHAR(320) UNIQUE NOT NULL,
+    payment_address CHAR(32) NOT NULL,
+    payment_amount CHAR(32) NOT NULL,
+    is_confirmed INT NOT NULL DEFAULT 0,
+    creation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE wallet_to_username (
+    wallet CHAR(32) UNIQUE NOT NULL PRIMARY KEY,
+    username VARCHAR(320) UNIQUE NOT NULL,
     creation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
