@@ -1,5 +1,7 @@
 require("./enable_webstorm_debugger.js");
 
+const interval = require("interval-promise");
+
 const conf = require("byteballcore/conf");
 const eventBus = require("byteballcore/event_bus");
 const usernames = require("./usernames");
@@ -10,76 +12,84 @@ const welcomeMessage = conf.welcomeMessage;
 
 let attestor = null;
 
-const handleTransaction = async (units) => {
-	const query = `SELECT * FROM outputs WHERE outputs.unit IN(?)`;
-
-	const rows = await helpers.executeQuery(query, [units]);
-
-	for(output of rows) {
-		const address = output.address;
-		const amount = output.amount;
-
-		const pendingPayment = await usernames.findPendingPaymentByAddress(address);
-
-		if(pendingPayment) {
-			if(amount === pendingPayment.amount) {
-				await usernames.setUsernameOwner(pendingPayment.username, pendingPayment.person);
-
-				await usernames.removePendingPaymentByAddress(address);
-
-				let unit;
-
-				try {
-					unit = await helpers.postAttestation(attestor, {
-						profile: pendingPayment.username,
-						address: pendingPayment.person
-					});
-
-					await reply(pendingPayment.person, `${pendingPayment.username} => https://explorer.byteball.org/#${unit}`);
-				} catch(e) {
-					console.error(e);
-					await reply(pendingPayment.person, `${pendingPayment.username} => without attestation`);
-				}
-			} else {
-				await reply(pendingPayment.person, `Your payment has been lost, sorry`);
-			}
-		}
-	}
-}
-
-eventBus.once('headless_wallet_ready', async () => {
+const onReady = async () => {
 	attestor = await helpers.createAddress();
 	console.log(`Fill balance of attestor: ${attestor}`);
-});
 
-eventBus.on("paired", (from) => {
-	reply(from, welcomeMessage);
-});
+	interval(checkReservations, conf.reservationsCheckIntervalInSeconds * 1000);
+};
 
-eventBus.on("text", async (person, text) => {
-	const username = text;
+const onPaired = async (from) => {
+	await reply(from, welcomeMessage);
+};
 
-	const isValid = await usernames.validateUsername(username);
-	if(!isValid) {
-		return reply(person, `${username} is not valid`);
+const handleNewTransactions = async (units) => {
+	const reservations = await usernames.findReservationsByUnits(units);
+
+	reservations.map(async ({ wallet }) => {
+		await reservation.confirmReservationByWallet(wallet);
+	});
+};
+
+const handleStableTransactions = async (units) => {
+	const reservations = await usernames.findReservationsByUnits(units);
+
+	reservations.map(async ({ username, wallet }) => {
+		await usernames.createUsername({ username, wallet });
+
+		await usernames.removeReservationByWallet(wallet);
+
+		await helpers.postAttestation(attestor, {
+			profile: username,
+			address: wallet
+		});
+	});
+};
+
+const handleQuestion = async (device, text) => {
+	const wallet = await usernames.findWalletByDevice(device);
+
+	if (wallet) {
+		const chosenUsername = text;
+
+		try {
+			const address = await helpers.createAddress();
+
+			const amount = usernames.getPrice(username);
+
+			await usernames.createReservation({
+				wallet: wallet,
+				username: chosenUsername,
+				paymentAddress: address,
+				paymentAmount: amount
+			});
+
+			await reply(device, `[${chosenUsername}](byteball:${address}?amount=${amount})`);
+		} catch(e) {
+			await reply(device, e.toString());
+		}
+	} else {
+		const chosenWallet = text;
+
+		try {
+			await usernames.createWallet({
+				device: device,
+				wallet: chosenWallet
+			});
+
+			await reply(device, `Your device "${device}" has been connected to ${chosenWallet}`);
+		} catch(e) {
+			return await reply(device, e.toString());
+		}
 	}
+};
 
-	const existingOwner = await usernames.findUsernameOwner(username);
-	if(existingOwner) {
-		return reply(person, `${username} is taken by ${existingOwner}`);
-	}
+const checkReservations = async () => {
+	await usernames.removeOutdatedReservations();
+};
 
-	const pendingPayment = await usernames.findPendingPaymentByUsername(username);
-	if(pendingPayment) {
-		return reply(person, `${username} is already pending for payment`);
-	}
-
-	const address = await helpers.createPaymentAddress();
-	const amount = usernames.getPrice(username);
-
-	await usernames.savePendingPayment({ address, amount, person, username });
-
-	await reply(person, `[${username}](byteball:${address}?amount=${amount})`);
-});
-
-eventBus.on("new_my_transactions", handleTransaction);
+eventBus.once("headless_wallet_ready", onReady);
+eventBus.on("paired", onPaired);
+eventBus.on("text", handleQuestion);
+eventBus.on("new_my_transactions", handleNewTransactions);
+eventBus.on("my_transactions_became_stable", handleStableTransactions);

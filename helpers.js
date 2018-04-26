@@ -6,15 +6,9 @@ const network = require("byteballcore/network");
 const composer = require("byteballcore/composer");
 const objectHash = require('byteballcore/object_hash.js');
 
-const createPaymentAddress = () => {
+const createAddress = () => {
 	return new Promise((resolve) => {
-		headlessWallet.issueNextMainAddress(resolve);
-	});
-}
-
-const createAddress = (index) => {
-	return new Promise((resolve) => {
-		headlessWallet.issueOrSelectAddressByIndex(0, 0, resolve);
+		headlessWallet.issueOrSelectNextMainAddress(resolve);
 	});
 }
 
@@ -75,7 +69,6 @@ const postAttestation = async (attestor, payload) => {
 
 module.exports = {
 	postAttestation,
-	createPaymentAddress,
 	createAddress,
 	executeQuery,
 	reply,
