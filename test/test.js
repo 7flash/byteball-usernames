@@ -2,39 +2,105 @@ const assert = require("assert");
 const expect = require("chai").expect;
 const proxyquire = require("proxyquire").noCallThru();
 
+const walletsModelMock = require("./walletsModelMock.js");
+const reservationsModelMock = require("./reservationsModelMock.js");
 const usernamesModelMock = require("./usernamesModelMock.js");
-const pendingPaymentsModelMock = require("./pendingPaymentsModelMock.js");
 
 const usernames = proxyquire("../usernames.js", {
-	'./usernamesModel': usernamesModelMock ,
-	'./pendingPaymentsModel': pendingPaymentsModelMock
+	"./walletsModel": walletsModelMock,
+	"./reservationsModel": reservationsModelMock,
+	"./usernamesModel": usernamesModelMock
 });
 
-const exampleUsername = "superuser";
-const examplePerson = "0FNZQSZTPMNZOHYE5R55VIWXF4J63SRG3";
+const exampleUsername = "theusername";
+const examplePaymentAddress = '0FNZQSZTPMNZOHYE5R55VIWXF4J63SRG3';
+const exampleDevice = 'JHKFWDLM6WAFGSXXOKX7KXDN55G3P4AL';
+const exampleWallet = 'IEBQNOQNBIJIP5H6W46YEKCNG24B6QTT';
 
-const anotherUsername = "anotherUsername";
-const anotherPerson = "0FNZQSZTPMNZOHYE5R55VIWXF4J63SRG4";
-const examplePaymentAddress = "0FNZQSZTPMNZOHYE5R55VIWXF4J63SRG5";
-const examplePendingPayment = {
-	username: "anotherUsername",
-	person: examplePerson,
+const exampleOutdatedReservation = {
+	username: exampleUsername,
+	wallet: exampleWallet,
 	paymentAddress: examplePaymentAddress,
-	paymentAmount: usernames.highPrice
+	paymentAmount: usernames.highPrice,
+	is_confirmed: 0,
+	creation_date: "2017-09-26 09:10:08"
+};
+
+const exampleReservation = {
+	username: exampleUsername,
+	wallet: exampleWallet,
+	paymentAddress: examplePaymentAddress,
+	paymentAmount: usernames.highPrice,
+	is_confirmed: 0,
+	creation_date: new Date()
 };
 
 describe("Usernames", () => {
-	describe("record ownership of usernames", () => {
+	describe("record ownership of wallet by device", async () => {
+		it("should return undefined for available wallet", async () => {
+			expect(await usernames.findWalletByDevice(exampleDevice)).to.be.equal(undefined);
+		});
+
+		it("should create relation of wallet to device", async () => {
+			await usernames.createWallet({ device: exampleDevice, wallet: exampleWallet });
+		});
+
+		it("should return wallet connected to device", async () => {
+			expect(await usernames.findWalletByDevice(exampleDevice)).to.be.equal(exampleWallet);
+		});
+	});
+
+	describe("record ownership of reservation by wallet", async () => {
+		it("should return undefined for non-reserved username", async () => {
+			expect(await usernames.findReservationByWallet(exampleWallet)).to.be.equal(undefined);
+		});
+
+		it("should reserve username for wallet", async () => {
+			await usernames.createReservation(exampleOutdatedReservation);
+		});
+
+		it("should fail to reserve username that already reserved", async () => {
+			try {
+				await usernames.createReservation(exampleOutdatedReservation);
+			} catch(e) {
+				expect(e).to.be.an('error');
+				return;
+			}
+			assert.fail("reserved again");
+		});
+
+		it("should return reservation by wallet", async () => {
+			expect(await usernames.findReservationByWallet(exampleWallet)).to.be.equal(exampleOutdatedReservation);
+		});
+
+		it("should remove outdated reservation", async () => {
+			await usernames.removeOutdatedReservations();
+
+			expect(await usernames.findReservationByWallet(exampleWallet)).to.be.equal(undefined);
+		});
+
+		it("should create new reservation instead of removed", async () => {
+			await usernames.createReservation(exampleReservation);
+		});
+
+		it("should not remove not-outdated reservation", async () => {
+			await usernames.removeOutdatedReservations();
+
+			expect(await usernames.findReservationByWallet(exampleWallet)).to.be.equal(exampleReservation);
+		});
+	});
+
+	describe("record ownership of username by wallet", () => {
 		it("should return undefined for available username", async () => {
-			expect(await usernames.findUsernameOwner(exampleUsername)).to.be.equal(undefined);
+			expect(await usernames.findUsernameByWallet(exampleWallet)).to.be.equal(undefined);
 		});
 
-		it("should allow to set username ownership", async () => {
-			await usernames.setUsernameOwner(exampleUsername, examplePerson);
+		it("should create connection on username with wallet", async () => {
+			await usernames.createUsername({ username: exampleUsername, wallet: exampleWallet });
 		});
 
-		it("should return owner of taken username", async () => {
-			expect(await usernames.findUsernameOwner(exampleUsername)).to.be.equal(examplePerson);
+		it("should return wallet associated with username", async () => {
+			expect(await usernames.findWalletByUsername(exampleUsername)).to.be.equal(exampleWallet);
 		});
 	});
 
@@ -67,52 +133,6 @@ describe("Usernames", () => {
 
 		it("should return low price for usernames longer than 6 symbols", () => {
 			expect(usernames.getPrice("itseven")).to.be.equal(usernames.lowPrice);
-		});
-	});
-
-	describe("record pending payments", () => {
-		it("should return undefined for username that is not pending for payment", async () => {
-			expect(await usernames.findPendingPaymentByUsername(examplePendingPayment.username)).to.be.equal(undefined);
-		});
-
-		it("should fail to create pending payment for taken username", async () => {
-			try {
-				await usernames.savePendingPayment({ username: exampleUsername });
-			} catch(e) {
-				expect(e).to.be.an('error');
-			}
-		});
-
-		it("should fail to create pending payment for invalid username", async () => {
-			try {
-				await usernames.savePendingPayment({ username: "four" })
-			} catch(e) {
-				expect(e).to.be.an('error');
-			}
-		});
-
-		it("should allow to create pending payment for available username", async () => {
-			await usernames.savePendingPayment(examplePendingPayment);
-		});
-
-		it("should return info about pending payment by username", async () => {
-			expect(await usernames.findPendingPaymentByUsername(examplePendingPayment.username)).to.be.equal(examplePendingPayment);
-		});
-
-		it("should return info about pending payment by address", async () => {
-			expect(await usernames.findPendingPaymentByAddress(examplePendingPayment.address)).to.be.equal(examplePendingPayment);
-		});
-
-		it("should allow to remove pending payment by username", async () => {
-			await usernames.removePendingPaymentByUsername(examplePendingPayment.username);
-			expect(await usernames.findPendingPaymentByUsername(examplePendingPayment.username)).to.be.equal(undefined);
-		});
-
-		it("should allow to remove pending payment by address", async () => {
-			await usernames.savePendingPayment(examplePendingPayment);
-
-			await usernames.removePendingPaymentByAddress(examplePendingPayment.address);
-			expect(await usernames.findPendingPaymentByAddress(examplePendingPayment.address)).to.be.equal(undefined);
 		});
 	});
 });

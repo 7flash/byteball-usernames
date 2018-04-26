@@ -1,11 +1,13 @@
-let usernameOwnership = {};
+let usernames = [];
 
-module.exports = {
-	setOwner(username, person) {
-		usernameOwnership[username] = person;
-	},
+module.exports.save = async ({ username, wallet }) => {
+	usernames.push({ username, wallet });
+};
 
-	findOwner(username) {
-		return usernameOwnership[username];
+module.exports.find = async ({ username, wallet }) => {
+	if(username) {
+		return usernames.find((item) => item.username === username);
+	} else if(wallet) {
+		return usernames.find((item) => item.wallet === wallet);
 	}
 }
