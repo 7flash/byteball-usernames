@@ -1,7 +1,8 @@
 let reservations = [];
 
 module.exports.find = async ({ wallet }) => {
-	return reservations.find((item) => item.wallet === wallet);
+	const result = reservations.find((item) => item.wallet === wallet);
+	return result ? [result] : [];
 };
 
 module.exports.save = async (reservation) => {

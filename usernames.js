@@ -70,29 +70,33 @@ module.exports = {
 	},
 
 	async findReservationsByUnits(units) {
-		return await reservations.findByUnits(units);
+		const result = await reservations.findByUnits(units);
+		return (result && result.length) ? result[0] : null;
 	},
 
 	async findReservationByWallet(wallet) {
-		return await reservations.find({ wallet });
+		const result = await reservations.find({ wallet });
+		return (result && result.length) ? result[0] : null;
 	},
 
 	async findReservationByUsername(username) {
-		return await reservations.find({ username });
+		const result = await reservations.find({ username });
+		return (result && result.length) ? result[0] : null;
 	},
 
 	async findWalletByDevice(device) {
 		const result = await wallets.find({ device });
-		return result ? result.wallet : result;
+		return (result && result.length) ? result[0].wallet : null;
 	},
 
 	async findUsernameByWallet(wallet) {
-		return await usernames.find({ wallet });
+		const result = await usernames.find({ wallet });
+		return (result && result.length) ? result[0].username : null;
 	},
 
 	async findWalletByUsername(username) {
 		const result = await usernames.find({ username });
-		return result ? result.wallet : result;
+		return (result && result.length) ? result[0].wallet : null;
 	},
 
 	validateUsername(username) {
@@ -107,7 +111,7 @@ module.exports = {
 	},
 
 	validateDevice(device) {
-		return validationUtils.isValidAddress(device);
+		return validationUtils.isValidDeviceAddress(device);
 	},
 
 	getPrice(username) {

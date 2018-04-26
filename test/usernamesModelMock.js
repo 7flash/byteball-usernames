@@ -5,9 +5,13 @@ module.exports.save = async ({ username, wallet }) => {
 };
 
 module.exports.find = async ({ username, wallet }) => {
+	let result;
+
 	if(username) {
-		return usernames.find((item) => item.username === username);
+		result = usernames.find((item) => item.username === username);
 	} else if(wallet) {
-		return usernames.find((item) => item.wallet === wallet);
+		result = usernames.find((item) => item.wallet === wallet);
 	}
+
+	return result ? [result] : [];
 }

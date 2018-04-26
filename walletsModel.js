@@ -17,6 +17,6 @@ module.exports = {
 			result = await executeQuery(`SELECT * FROM ${table} WHERE wallet = ?`, [wallet]);
 		}
 
-		return result[0];
+		return result;
 	}
 }

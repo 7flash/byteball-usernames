@@ -19,6 +19,6 @@ module.exports = {
 				[wallet]);
 		}
 
-		return result[0];
+		return result;
 	}
 }

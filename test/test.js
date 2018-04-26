@@ -14,7 +14,7 @@ const usernames = proxyquire("../usernames.js", {
 
 const exampleUsername = "theusername";
 const examplePaymentAddress = '0FNZQSZTPMNZOHYE5R55VIWXF4J63SRG3';
-const exampleDevice = 'JHKFWDLM6WAFGSXXOKX7KXDN55G3P4AL';
+const exampleDevice = '0FNZQSZTPMNZOHYE5R55VIWXF4J63SRG3';
 const exampleWallet = 'IEBQNOQNBIJIP5H6W46YEKCNG24B6QTT';
 
 const exampleOutdatedReservation = {
@@ -38,7 +38,7 @@ const exampleReservation = {
 describe("Usernames", () => {
 	describe("record ownership of wallet by device", async () => {
 		it("should return undefined for available wallet", async () => {
-			expect(await usernames.findWalletByDevice(exampleDevice)).to.be.equal(undefined);
+			expect(await usernames.findWalletByDevice(exampleDevice)).to.be.equal(null);
 		});
 
 		it("should create relation of wallet to device", async () => {
@@ -52,7 +52,7 @@ describe("Usernames", () => {
 
 	describe("record ownership of reservation by wallet", async () => {
 		it("should return undefined for non-reserved username", async () => {
-			expect(await usernames.findReservationByWallet(exampleWallet)).to.be.equal(undefined);
+			expect(await usernames.findReservationByWallet(exampleWallet)).to.be.equal(null);
 		});
 
 		it("should reserve username for wallet", async () => {
@@ -76,7 +76,7 @@ describe("Usernames", () => {
 		it("should remove outdated reservation", async () => {
 			await usernames.removeOutdatedReservations();
 
-			expect(await usernames.findReservationByWallet(exampleWallet)).to.be.equal(undefined);
+			expect(await usernames.findReservationByWallet(exampleWallet)).to.be.equal(null);
 		});
 
 		it("should create new reservation instead of removed", async () => {
@@ -92,7 +92,7 @@ describe("Usernames", () => {
 
 	describe("record ownership of username by wallet", () => {
 		it("should return undefined for available username", async () => {
-			expect(await usernames.findUsernameByWallet(exampleWallet)).to.be.equal(undefined);
+			expect(await usernames.findUsernameByWallet(exampleWallet)).to.be.equal(null);
 		});
 
 		it("should create connection on username with wallet", async () => {

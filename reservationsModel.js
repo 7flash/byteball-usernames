@@ -18,8 +18,7 @@ module.exports = {
 	},
 
 	async findByUnits(units) {
-		const query = `
-			SELECT * FROM outputs
+		const query = `SELECT * FROM outputs
 				INNER JOIN ${table} ON (
 					${table}.wallet = outputs.address
 				AND
